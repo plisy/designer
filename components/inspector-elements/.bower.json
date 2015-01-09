@@ -1,0 +1,21 @@
+{
+  "name": "inspector-elements",
+  "private": true,
+  "dependencies": {
+    "core-animation": "Polymer/core-animation#^0.5.0",
+    "core-icons": "Polymer/core-icons#^0.5.0",
+    "core-pages": "Polymer/core-pages#^0.5.0",
+    "x-meta": "Polymer/x-meta#^0.5.0"
+  },
+  "version": "0.5.2",
+  "homepage": "https://github.com/PolymerLabs/inspector-elements",
+  "_release": "0.5.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.5.2",
+    "commit": "39a5bc5cc47aff473d999c5e4cc00e95deb884bf"
+  },
+  "_source": "git://github.com/PolymerLabs/inspector-elements.git",
+  "_target": "^0.5.0",
+  "_originalSource": "PolymerLabs/inspector-elements"
+}
