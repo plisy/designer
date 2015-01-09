@@ -1,0 +1,60 @@
+<link rel="import" href="../../components/core-ajax/core-xhr.html" />
+
+<link rel="import" href="../../components/paper-dialog/paper-action-dialog.html">
+<link rel="import" href="../../components/paper-input/paper-input.html">
+<link rel="import" href="../../components/paper-button/paper-button.html">
+
+<polymer-element name="file-opener" attributes="fileName">
+
+    <template>
+
+        <paper-action-dialog id="fileNameDialog" heading="Content Id" transition="core-transition-center">
+
+            <paper-input label="Content id" value="{{fileName}}"></paper-input>
+
+            <paper-button affirmative autofocus on-tap="{{openAction}}}">Open</paper-button>
+            <paper-button dismissive>Cancel</paper-button>
+        </paper-action-dialog>
+
+        <core-xhr id="xhr"></core-xhr>
+    </template>
+
+    <script>
+        Polymer('file-opener', {
+            fileName: "",
+
+            getContent: function (callback) {
+
+                var handler = function () {
+                    this.$.fileNameDialog.removeEventListener('core-overlay-close-completed', handler);
+
+                    if (! this.shouldOpen) {
+                        return callback(false);
+                    }
+
+                    var options = {
+                        method: 'GET',
+                        url: '/files/' + this.fileName,
+                        callback: function (content) {
+                            callback(true, content);
+                        }
+                    };
+
+                    this.$.xhr.request(options);
+
+                    this.shouldOpen = false;
+
+                }.bind(this);
+
+                this.$.fileNameDialog.addEventListener('core-overlay-close-completed', handler);
+
+                this.$.fileNameDialog.toggle();
+
+            },
+
+            openAction: function () {
+                this.shouldOpen = true;
+            }
+        })
+    </script>
+</polymer-element>

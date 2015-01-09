@@ -9,6 +9,20 @@ var app = express();
 app.use('/', express.static(path.resolve('./')));
 app.use(bodyParser.json());
 
+app.get('/files/:fileId', function (req, res) {
+    fs.readFile('./files/' + req.params.fileId + '.html', function (err, file) {
+        if (err) {
+            res.statusCode = 404;
+            res.json({
+                message: 'Could not open file',
+                error: err
+            });
+
+            return;
+        }
+        res.send(file);
+    });
+});
 
 app.post('/files/:fileId', function (req, res) {
 

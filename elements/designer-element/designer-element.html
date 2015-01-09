@@ -31,7 +31,9 @@
 <link rel="import" href="../design-preview/design-github-info.html">
 <link rel="import" href="../design-state/design-state.html">
 <link rel="import" href="../design-code/design-code.html">
+
 <link rel="import" href="../file-selector/file-selector.html">
+<link rel="import" href="../file-opener/file-opener.html">
 
 
 <polymer-element name="designer-element" vertical layout>
@@ -46,8 +48,7 @@
     <span class="separator"></span>
 
     <core-icon-button title="Save" icon="save" on-tap="{{saveAction}}"></core-icon-button>
-    <!-- shareAction must be triggered from click to allow opening a tab (otherwise can only open a floating window) -->
-    <core-icon-button title="Share Gist" icon="social:share" on-click="{{shareAction}}"></core-icon-button>
+    <core-icon-button title="Open" icon="folder-open" on-tap="{{openAction}}"></core-icon-button>
     <core-icon-button title="Launch Preview" icon="launch" on-click="{{previewAction}}"></core-icon-button>
 
     <div class="design-controls" horizontal center layout hidden?="{{selected == 'code'}}">
@@ -133,7 +134,8 @@
 
   <dom-serializer id="serializer"></dom-serializer>
   <design-state id="state" on-state-change="{{undoStateChange}}"></design-state>
-  <file-selector id="fileSelector"></file-selector>
+  <file-selector id="fileSelector" fileName="{{fileName}}"></file-selector>
+  <file-opener id="fileOpener" fileName="{{fileName}}"></file-opener>
 
   <div id="toast"  class="{{ {showing: toastShowing } | tokenList }}">
     <div>{{toast}}</div>
@@ -147,6 +149,7 @@ Polymer({
   paletteMode: 'menu',
   selectedTool: 'palette',
   remoteHtml: '',
+  fileName: '',
 
   ready: function() {
     window.onbeforeunload = this.warnUnload.bind(this);
@@ -351,6 +354,15 @@ Polymer({
     this.save(function() {
       this.toastShowing = false;
     });
+  },
+
+  openAction: function () {
+    var hander = function (gotContent, content) {
+      if (gotContent) {
+        this.remoteHtml = content;
+      }
+    }.bind(this);
+    this.$.fileOpener.getContent(hander);
   },
 
   shareAction: function() {
