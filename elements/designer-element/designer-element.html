@@ -19,9 +19,10 @@
 <link rel="import" href="../../components/core-menu/core-menu.html">
 <link rel="import" href="../../components/core-item/core-item.html">
 <link rel="import" href="../../components/core-splitter/core-splitter.html">
+<link rel="import" href="../../components/core-ajax/core-xhr.html">
 
 
-<link rel="import" href="../../components/github-elements/github-elements.html">
+<!--<link rel="import" href="../../components/github-elements/github-elements.html">-->
 
 <link rel="import" href="../dom-serializer/dom-serializer.html">
 <link rel="import" href="../../components/inspector-elements/element-inspector.html">
@@ -30,6 +31,8 @@
 <link rel="import" href="../design-preview/design-github-info.html">
 <link rel="import" href="../design-state/design-state.html">
 <link rel="import" href="../design-code/design-code.html">
+<link rel="import" href="../file-selector/file-selector.html">
+
 
 <polymer-element name="designer-element" vertical layout>
 <template>
@@ -130,8 +133,7 @@
 
   <dom-serializer id="serializer"></dom-serializer>
   <design-state id="state" on-state-change="{{undoStateChange}}"></design-state>
-  <design-github-info id="githubInfo" token="{{githubToken}}"></design-github-info>
-  <github-element id="github" token="{{githubToken}}" on-files-loaded="{{documentLoaded}}" on-files-saved="{{documentSaved}}" on-files-updated="{{documentSaved}}" on-token-changed="{{tokenChangeHandler}}"></github-element>
+  <file-selector id="fileSelector"></file-selector>
 
   <div id="toast"  class="{{ {showing: toastShowing } | tokenList }}">
     <div>{{toast}}</div>
@@ -344,9 +346,6 @@ Polymer({
   },
 
   saveAction: function() {
-    if (!this.ensureSignedIn(this.saveAction)) {
-      return;
-    }
     this.toast = 'Saving...';
     this.toastShowing = true;
     this.save(function() {
@@ -385,28 +384,14 @@ Polymer({
 
   save: function(callback) {
     var self = this;
+
     var saveCb = function() {
       if (callback) {
         callback.call(self);
       }
     };
-    var updateCb = function(response) {
-      // update fails if gist is some other user's
-      // if this happens perform a save.
-      if (response && response.error === 404) {
-        self.fileId = null;
-        self.save(callback);
-      } else {
-        saveCb();
-      }
-    };
-    var options = {};
-    options[this.$.githubInfo.fileName] = {content: this.getContent()};
-    if (this.fileId) {
-      this.$.github.update(this.fileId, 'designer', true, options, updateCb);
-    } else {
-      this.$.github.save('designer', true, options, saveCb);
-    }
+
+    this.$.fileSelector.save(this.getContent(), saveCb);
   },
 
   documentSaved: function(event, detail) {
@@ -423,7 +408,7 @@ Polymer({
   },
 
   documentLoaded: function(event, detail) {
-    var doc = detail && detail[this.$.githubInfo.fileName];
+    var doc = detail && detail[this.$.fileName];
     if (doc) {
       this.remoteHtml = doc.content;
     }

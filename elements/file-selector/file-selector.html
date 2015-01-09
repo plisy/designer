@@ -1,0 +1,61 @@
+<link rel="import" href="../../components/core-ajax/core-xhr.html">
+
+<link rel="import" href="../../components/paper-dialog/paper-action-dialog.html">
+<link rel="import" href="../../components/paper-input/paper-input.html">
+<link rel="import" href="../../components/paper-button/paper-button.html">
+
+
+<polymer-element name="file-selector" attributes="fileName">
+    <template>
+        <paper-action-dialog id="fileNameDialog" heading="Content Id" transition="core-transition-center">
+
+            <paper-input label="Content id" value="{{fileName}}"></paper-input>
+
+            <paper-button affirmative autofocus on-tap="{{saveAction}}}">Save</paper-button>
+            <paper-button dismissive>Cancel</paper-button>
+        </paper-action-dialog>
+
+        <core-xhr id="xhr"></core-xhr>
+
+    </template>
+    <script>
+        Polymer('file-selector', {
+
+            fileName:'',
+
+            save: function(content, callback){
+
+                console.log('Trying to store, ', content);
+
+                var handler = function () {
+
+                    this.$.fileNameDialog.removeEventListener('core-overlay-close-completed', handler);
+
+                    var options = {
+                        method: 'POST',
+                        url: '/files/' + this.fileName,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({content: content}),
+                        callback: callback
+                    };
+
+                    this.$.xhr.request(options);
+
+                    this.shouldSave = false;
+
+                }.bind(this);
+
+                this.$.fileNameDialog.addEventListener('core-overlay-close-completed', handler);
+
+                this.$.fileNameDialog.toggle();
+
+            },
+
+            saveAction: function () {
+                this.shouldSave = true;
+            }
+        })
+    </script>
+</polymer-element>
