@@ -1,0 +1,5 @@
+---
+applications:
+- name: content-creator
+  memory: 128M
+  buildpack: python_buildpack
